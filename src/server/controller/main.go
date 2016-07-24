@@ -16,7 +16,7 @@ func StartService() {
 func register() {
 	iris.Get("/allpaths", getPaths)
 
-	feedSourcesArr := database.AllContextsAndCategories()
+	feedSourcesArr := database.GetAllContextsAndCategories()
 	for _, feedSource := range *feedSourcesArr {
 		iris.Get(makePath(feedSource), getNews)
 	}
@@ -30,7 +30,7 @@ func getNews(context *iris.Context) {
 	fsArgs :=
 		strings.Split(string(context.Path())[1:], "/")
 	feedSourceLink :=
-		database.LinkByContextAndCategory(fsArgs[0], fsArgs[1])
+		database.GetLinkByContextAndCategory(fsArgs[0], fsArgs[1])
 
 	feed := feedProvider.ReadNewsFeed(feedSourceLink)
 

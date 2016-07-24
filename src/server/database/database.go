@@ -12,9 +12,8 @@ func init() {
 }
 
 type NewsFeedSource struct {
-	gorm.Model
-	Context  string `sql:"type:VARCHAR(20);not null"`
-	Category string `sql:"type:VARCHAR(20);not null"`
+	Context  string `sql:"type:VARCHAR(20);not null" gorm:"primary_key"`
+	Category string `sql:"type:VARCHAR(20);not null" gorm:"primary_key"`
 	Link     string `sql:"unique;not null"`
 }
 
@@ -41,7 +40,7 @@ func CreateTable() {
 	}
 }
 
-func AllContextsAndCategories() *[]NewsFeedSource {
+func GetAllContextsAndCategories() *[]NewsFeedSource {
 	db := getConnectionDB()
 	defer db.Close()
 
@@ -50,7 +49,7 @@ func AllContextsAndCategories() *[]NewsFeedSource {
 	return &resultArr
 }
 
-func LinkByContextAndCategory(context, category string) string {
+func GetLinkByContextAndCategory(context, category string) string {
 	db := getConnectionDB()
 	defer db.Close()
 
@@ -76,14 +75,17 @@ func GetCategoriesMap() map[string][]string {
 	cMap := make(map[string][]string)
 	keyRows, _ :=
 		db.Raw(
-			"SELECT DISTINCT category FROM news_feed_sources").Rows()
+			`SELECT DISTINCT category 
+			FROM news_feed_sources`).Rows()
 
 	for keyRows.Next() {
 		var key string
 		keyRows.Scan(&key)
 		valueRows, _ :=
 			db.Raw(
-				"SELECT DISTINCT context FROM news_feed_sources WHERE category='" + key + "'").Rows()
+				`SELECT DISTINCT context 
+				FROM news_feed_sources 
+				WHERE category='" + key + "'`).Rows()
 
 		for valueRows.Next() {
 			var value string
